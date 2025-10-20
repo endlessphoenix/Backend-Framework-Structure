@@ -18,7 +18,10 @@ class HeaderState(rx.State):
 
     menu_items: list[MenuItem] = [
         {"title": "Home", "path": "/"},
-        {"title": "AI Apps", "children": [{"title": "AI Takeoffs", "path": "#"}]},
+        {
+            "title": "AI Apps",
+            "children": [{"title": "AI Takeoffs", "path": "/ai-takeoffs"}],
+        },
         {
             "title": "AI Support",
             "children": [
