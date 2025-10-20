@@ -1,5 +1,5 @@
 import reflex as rx
-from app.states.ai_takeoffs_state import AITakeoffsState
+from app.states.takeoff_state import TakeoffState
 from app.components.header import header_component
 from app.components.footer import footer_component
 
@@ -7,7 +7,7 @@ UPLOAD_ID = "takeoff_upload"
 
 
 def file_display(file_name: str) -> rx.Component:
-    """Displays an uploaded file with an option to remove it (not implemented)."""
+    """Displays an uploaded file with a file icon."""
     return rx.el.div(
         rx.icon("file-text", class_name="w-4 h-4 mr-2 text-gray-400"),
         rx.el.span(file_name, class_name="text-sm text-gray-300"),
@@ -15,11 +15,11 @@ def file_display(file_name: str) -> rx.Component:
     )
 
 
-def upload_component() -> rx.Component:
-    """The file upload component for the AI Takeoffs page."""
+def upload_area() -> rx.Component:
+    """The file upload drag-and-drop area."""
     return rx.upload.root(
         rx.el.div(
-            rx.icon("cloud_upload", class_name="w-10 h-10 text-gray-500 mb-3"),
+            rx.icon("cloud-upload", class_name="w-10 h-10 text-gray-500 mb-3"),
             rx.el.p(
                 "Drop project files here", class_name="text-blue-400 font-semibold"
             ),
@@ -48,25 +48,49 @@ def ai_takeoffs_page() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.h2(
-                        "Project Input", class_name="text-2xl font-bold text-white mb-4"
+                        "Project Input", class_name="text-2xl font-bold text-white mb-6"
                     ),
-                    rx.el.div(class_name="border-b border-gray-700 mb-6"),
                     rx.el.div(
                         rx.el.div(
                             rx.el.div(
                                 rx.cond(
-                                    rx.selected_files(UPLOAD_ID).length() == 0,
-                                    upload_component(),
+                                    TakeoffState.uploaded_files.length() == 0,
+                                    upload_area(),
                                     rx.el.div(
                                         rx.foreach(
-                                            rx.selected_files(UPLOAD_ID), file_display
+                                            TakeoffState.uploaded_files, file_display
                                         ),
-                                        class_name="grid grid-cols-2 gap-4 p-4 h-full overflow-y-auto",
+                                        class_name="space-y-2 p-4 h-48 overflow-y-auto bg-gray-900/50 rounded-lg",
                                     ),
                                 ),
-                                class_name="h-48 w-full",
+                                class_name="flex-1 h-48",
                             ),
-                            class_name="flex-1",
+                            rx.el.button(
+                                rx.cond(
+                                    TakeoffState.is_uploading,
+                                    rx.el.span("Uploading..."),
+                                    rx.el.span("Upload Selected Files"),
+                                ),
+                                on_click=[
+                                    TakeoffState.handle_upload(
+                                        rx.upload_files(upload_id=UPLOAD_ID)
+                                    ),
+                                    rx.clear_selected_files(UPLOAD_ID),
+                                ],
+                                class_name="mt-4 w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50",
+                                disabled=TakeoffState.is_uploading
+                                | (rx.selected_files(UPLOAD_ID).length() == 0),
+                            ),
+                            rx.cond(
+                                TakeoffState.uploaded_files.length() > 0,
+                                rx.el.button(
+                                    "Clear All",
+                                    on_click=TakeoffState.clear_uploads,
+                                    class_name="mt-2 w-full bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700",
+                                ),
+                                rx.fragment(),
+                            ),
+                            class_name="flex-1 flex flex-col justify-between",
                         ),
                         rx.el.div(
                             rx.el.h3(
@@ -75,9 +99,9 @@ def ai_takeoffs_page() -> rx.Component:
                             ),
                             rx.el.div(
                                 rx.icon(
-                                    "check_check",
+                                    "square_check",
                                     class_name=rx.cond(
-                                        AITakeoffsState.has_pdf,
+                                        TakeoffState.has_pdf,
                                         "text-green-500",
                                         "text-gray-500",
                                     ),
@@ -90,25 +114,13 @@ def ai_takeoffs_page() -> rx.Component:
                             ),
                             rx.el.button(
                                 "Generate Takeoff",
-                                on_click=AITakeoffsState.generate_takeoff,
-                                class_name="w-full bg-gray-600 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-sm disabled:opacity-50",
-                                disabled=~AITakeoffsState.has_pdf,
+                                on_click=TakeoffState.generate_takeoff,
+                                class_name="w-full bg-gray-600 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed",
+                                disabled=~TakeoffState.has_pdf,
                             ),
                             class_name="flex-1 lg:ml-8 mt-8 lg:mt-0",
                         ),
                         class_name="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start",
-                    ),
-                    rx.el.button(
-                        rx.cond(
-                            AITakeoffsState.is_uploading,
-                            rx.el.span("Uploading..."),
-                            rx.el.span("Upload Selected Files"),
-                        ),
-                        on_click=AITakeoffsState.handle_upload(
-                            rx.upload_files(upload_id=UPLOAD_ID)
-                        ),
-                        class_name="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700",
-                        disabled=AITakeoffsState.is_uploading,
                     ),
                     class_name="bg-gray-800 p-8 rounded-2xl shadow-lg",
                 ),

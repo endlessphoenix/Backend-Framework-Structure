@@ -1,5 +1,5 @@
 import reflex as rx
-import os
+import logging
 
 
 class TakeoffState(rx.State):
@@ -8,19 +8,32 @@ class TakeoffState(rx.State):
     uploaded_files: list[str] = []
     is_uploading: bool = False
 
+    @rx.var
+    def has_pdf(self) -> bool:
+        """Check if at least one PDF file has been uploaded."""
+        for file_name in self.uploaded_files:
+            if file_name.lower().endswith(".pdf"):
+                return True
+        return False
+
     @rx.event
     async def handle_upload(self, files: list[rx.UploadFile]):
-        """Handles the file upload."""
+        """Handles the file upload process."""
+        if not files:
+            return
         self.is_uploading = True
-        try:
-            for file in files:
-                upload_data = await file.read()
-                outfile = rx.get_upload_dir() / file.name
-                with outfile.open("wb") as f:
-                    f.write(upload_data)
-                self.uploaded_files.append(file.name)
-        finally:
-            self.is_uploading = False
+        yield
+        for file in files:
+            upload_data = await file.read()
+            self.uploaded_files.append(file.name)
+        self.is_uploading = False
+        yield
+
+    @rx.event
+    def generate_takeoff(self):
+        """Placeholder for generating the takeoff."""
+        logging.info("Generating takeoff with files:", self.uploaded_files)
+        yield rx.toast("Takeoff generation started!")
 
     @rx.event
     def clear_uploads(self):
