@@ -15,6 +15,14 @@ class ChatState(rx.State):
 
     messages: list[Message] = []
     is_loading: bool = False
+    selected_model: str = "gpt-3.5-turbo"
+    models: list[str] = [
+        "gpt-3.5-turbo",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-4-turbo",
+        "gpt-4",
+    ]
 
     @rx.event(background=True)
     async def process_message(self, form_data: dict[str, str]):
@@ -28,7 +36,7 @@ class ChatState(rx.State):
             self.messages.append({"role": "user", "content": input_text})
         try:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo", messages=self.messages, max_tokens=150
+                model=self.selected_model, messages=self.messages, max_tokens=150
             )
             ai_message = response.choices[0].message.content
             async with self:

@@ -31,13 +31,23 @@ def chat_page() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.div(
-                        rx.el.h1(
-                            "AI Chat", class_name="text-3xl font-bold text-white mb-4"
-                        ),
-                        rx.el.button(
-                            "Clear Chat",
-                            on_click=ChatState.clear_chat,
-                            class_name="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-semibold",
+                        rx.el.h1("AI Chat", class_name="text-3xl font-bold text-white"),
+                        rx.el.div(
+                            rx.el.select(
+                                rx.foreach(
+                                    ChatState.models,
+                                    lambda model: rx.el.option(model, value=model),
+                                ),
+                                value=ChatState.selected_model,
+                                on_change=ChatState.set_selected_model,
+                                class_name="bg-gray-700 text-white px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold",
+                            ),
+                            rx.el.button(
+                                "Clear Chat",
+                                on_click=ChatState.clear_chat,
+                                class_name="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors duration-200 font-semibold",
+                            ),
+                            class_name="flex items-center gap-4",
                         ),
                         class_name="flex justify-between items-center mb-4",
                     ),
