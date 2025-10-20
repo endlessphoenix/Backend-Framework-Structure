@@ -1,12 +1,12 @@
 import reflex as rx
-from app.states.header_state import HeaderState, MenuItem
+from app.states.header_state import HeaderState, MenuItem, SubMenuItem
 
 
-def dropdown_item(text: str) -> rx.Component:
+def dropdown_item(item: SubMenuItem) -> rx.Component:
     """A single item in a dropdown menu."""
     return rx.el.a(
-        text,
-        href="#",
+        item["title"],
+        href=item["path"],
         class_name="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150",
         role="menuitem",
     )
@@ -29,7 +29,7 @@ def menu_item(item: MenuItem) -> rx.Component:
                     "text-gray-400 font-medium flex items-center",
                 ),
             ),
-            href="#",
+            href=item.get("path", "#"),
             on_click=lambda: HeaderState.set_active_page(item["title"]),
             class_name="px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors duration-200 ease-in-out",
         ),

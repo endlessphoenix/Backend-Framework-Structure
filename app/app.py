@@ -1,6 +1,7 @@
 import reflex as rx
 from app.components.header import header_component
 from app.components.footer import footer_component
+from app.pages.chat import chat_page
 
 
 def index() -> rx.Component:
@@ -52,3 +53,4 @@ app = rx.App(
     ],
 )
 app.add_page(index)
+app.add_page(chat_page, route="/chat")

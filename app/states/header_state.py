@@ -2,23 +2,42 @@ import reflex as rx
 from typing import TypedDict, NotRequired
 
 
+class SubMenuItem(TypedDict):
+    title: str
+    path: str
+
+
 class MenuItem(TypedDict):
     title: str
-    children: NotRequired[list[str]]
+    path: NotRequired[str]
+    children: NotRequired[list[SubMenuItem]]
 
 
 class HeaderState(rx.State):
     """State for the header component."""
 
     menu_items: list[MenuItem] = [
-        {"title": "Home"},
-        {"title": "AI Apps", "children": ["AI Takeoffs"]},
-        {"title": "AI Support", "children": ["AI Help Desk", "AI Website Chat"]},
-        {"title": "AI Marketing", "children": ["AI SEO", "AI SEM", "AI Branding"]},
-        {"title": "AI Finance"},
-        {"title": "AI Policies"},
-        {"title": "AI Training"},
-        {"title": "AI Chat"},
+        {"title": "Home", "path": "/"},
+        {"title": "AI Apps", "children": [{"title": "AI Takeoffs", "path": "#"}]},
+        {
+            "title": "AI Support",
+            "children": [
+                {"title": "AI Help Desk", "path": "#"},
+                {"title": "AI Website Chat", "path": "#"},
+            ],
+        },
+        {
+            "title": "AI Marketing",
+            "children": [
+                {"title": "AI SEO", "path": "#"},
+                {"title": "AI SEM", "path": "#"},
+                {"title": "AI Branding", "path": "#"},
+            ],
+        },
+        {"title": "AI Finance", "path": "#"},
+        {"title": "AI Policies", "path": "#"},
+        {"title": "AI Training", "path": "#"},
+        {"title": "AI Chat", "path": "/chat"},
     ]
     active_page: str = "Home"
     open_dropdown: str = ""
